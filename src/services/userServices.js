@@ -51,7 +51,7 @@ let verifyLogin = (userEmail, password) => {
       if (checkEmail) {
         let user = await db.User.findOne({
           where: { email: userEmail },
-          raw: true,
+          //   raw: true,
         });
         if (user) {
           console.log(user);
@@ -105,10 +105,140 @@ let verifyPassword = (password, savePassword) => {
     }
   });
 };
+
+let getAllUser = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user = "";
+      if (userId == "all") {
+        console.log("get all");
+        user = await db.User.findAll({
+          attributes: {
+            exclude: ["password"],
+          },
+        });
+        // console.log(user);
+      } else {
+        console.log("get 1");
+        user = await db.User.findOne({
+          where: { id: userId },
+          attributes: {
+            exclude: ["password"],
+          },
+        });
+      }
+      resolve(user);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+let apiCreateNewUser = async (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let password = await HashUserPassword(data.password);
+      let apiResponse = {};
+      let checkEmail = await verifyEmail(data.email);
+      //   console.log(data.email, "----", checkEmail);
+      if (checkEmail === true) {
+        apiResponse = {
+          errorCode: 1,
+          message: "Email đã được sử dụng! Vui lòng nhập email khác!",
+        };
+      } else {
+        await db.User.create({
+          email: data.email,
+          password: password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          address: data.address,
+          phoneNumber: data.phoneNumber,
+          gender: data.gender == 0 ? true : false,
+          roleId: data.roleId,
+        });
+        apiResponse = {
+          errorCode: 0,
+          message: "Tạo user thành công",
+        };
+      }
+      resolve(apiResponse);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+let apiDeleteUser = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let apiResponse = {};
+      let user = await db.User.findOne({
+        where: { id: userId },
+        raw: false,
+      });
+      console.log(user);
+      if (user) {
+        await user.destroy();
+        apiResponse = {
+          errorCode: 0,
+          message: "Xóa thành công",
+        };
+      } else {
+        apiResponse = {
+          errorCode: 1,
+          message: "User không tồn tại",
+        };
+      }
+      resolve(apiResponse);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+let apiUpdateUser = async (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let apiResponse = {};
+      let user = await db.User.findOne({
+        where: { id: data.id },
+        raw: false,
+      });
+      console.log(user);
+      if (user) {
+        // user.email= data.email;
+        // user.password= password;
+        user.firstName = data.firstName ? data.firstName : user.firstName;
+        user.lastName = data.lastName ? data.lastName : user.lastName;
+        user.address = data.address ? data.address : user.address;
+        user.phoneNumber = data.phoneNumber
+          ? data.phoneNumber
+          : user.phoneNumber;
+        // user.gender= data.gender == 0 ? true : false;
+        // user.roleId= data.roleId;
+        await user.save();
+        apiResponse = {
+          errorCode: 0,
+          message: "Cập nhật thành công",
+        };
+      } else {
+        apiResponse = {
+          errorCode: 1,
+          message: "User không tồn tại",
+        };
+      }
+      resolve(apiResponse);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 module.exports = {
   createNewUser,
   findUserByPK,
   verifyLogin,
   verifyEmail,
   verifyPassword,
+  getAllUser,
+  apiCreateNewUser,
+  apiDeleteUser,
+  apiUpdateUser,
 };
