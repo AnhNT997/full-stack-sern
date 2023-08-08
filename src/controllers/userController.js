@@ -68,7 +68,15 @@ let apiGetAllUser = async (req, res) => {
 };
 let apiCreateNewUser = async (req, res) => {
   let apiResponse = {};
-  apiResponse = await UserServices.apiCreateNewUser(req.body);
+  let data = req.body.data;
+  if (!data) {
+    apiResponse = {
+      errorCode: 2,
+      message: "Data is empty!",
+    };
+  } else {
+    apiResponse = await UserServices.apiCreateNewUser(data);
+  }
   return res.status(200).send(apiResponse);
 };
 let apiDeleteUser = async (req, res) => {

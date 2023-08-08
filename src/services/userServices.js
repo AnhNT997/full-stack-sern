@@ -175,7 +175,7 @@ let apiDeleteUser = (userId) => {
         where: { id: userId },
         raw: false,
       });
-      console.log(user);
+      //   console.log(user);
       if (user) {
         await user.destroy();
         apiResponse = {
