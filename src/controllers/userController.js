@@ -93,8 +93,9 @@ let apiDeleteUser = async (req, res) => {
   return res.status(200).send(apiResponse);
 };
 let apiUpdateUser = async (req, res) => {
+  console.log("try update", req.body.data);
   let apiResponse = {};
-  apiResponse = await UserServices.apiUpdateUser(req.body);
+  apiResponse = await UserServices.apiUpdateUser(req.body.data);
   return res.status(200).send(apiResponse);
 };
 module.exports = {

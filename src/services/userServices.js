@@ -202,7 +202,7 @@ let apiUpdateUser = async (data) => {
         where: { id: data.id },
         raw: false,
       });
-      console.log(user);
+      //   console.log(user);
       if (user) {
         // user.email= data.email;
         // user.password= password;
